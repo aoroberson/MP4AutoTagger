@@ -23,6 +23,10 @@
  */
 package com.aoroberson;
 
+import com.omertron.themoviedbapi.MovieDbException;
+import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.model.MovieDb;
+import com.omertron.themoviedbapi.results.TmdbResultsList;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,6 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -43,6 +48,8 @@ import javax.swing.table.TableColumnModel;
  * @author aoroberson
  */
 public class MainForm extends javax.swing.JFrame {
+
+    private static TheMovieDbApi tmdb;
 
     /**
      * Creates new form MainForm
@@ -248,6 +255,13 @@ public class MainForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnSelectFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnAutoTag, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnApplyTags, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane3)
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -263,7 +277,7 @@ public class MainForm extends javax.swing.JFrame {
                                         .addGap(14, 14, 14)))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(tfGenre)
+                                        .addComponent(tfGenre, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(cbYear)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -283,15 +297,8 @@ public class MainForm extends javax.swing.JFrame {
                                 .addComponent(imagePane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(53, 53, 53)
-                                .addComponent(cbImage)))
-                        .addContainerGap())
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 573, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnSelectFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnAutoTag, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnApplyTags, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addComponent(cbImage)))))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -325,12 +332,13 @@ public class MainForm extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(6, 6, 6)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnApplyTags, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnSelectFiles, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnAutoTag, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnApplyTags, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnAutoTag, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnSelectFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -347,19 +355,44 @@ public class MainForm extends javax.swing.JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             File[] selectedFiles = fileChooser.getSelectedFiles();
 
-            for (File f : selectedFiles) {
-                BufferedImage posterImg = null;
-                try {
-                    posterImg = ImageIO.read(new URL("https://image.tmdb.org/t/p/w150/8T9eVZxO3d4W7cUMqkxB2dhPXcr.jpg"));
-                } catch (IOException ex) {
-                    Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                videoGroup1.addVideo(new Video(f.getPath(), "SomeDirector",
-                        "SomeGenre", "1980", "SomeComments", "SomeDescription",
-                        "SomeFilePath", "SomeFileName", posterImg));
-            }
+            taDescription.setText("asdf;olaksjdf;lkjasdflkj");
             
-            AutoSizeColumns(tbData);
+            try {
+                tmdb = new TheMovieDbApi("5a1a77e2eba8984804586122754f969f");
+                BufferedImage posterImg = null;
+
+                for (File f : selectedFiles) {
+
+                    if (tmdb != null) {
+                        TmdbResultsList<MovieDb> movieList = tmdb.searchMovie("Gone Girl", 2014, null, true, 0);
+
+                        if (movieList.getResults().size() > 0) {
+                            MovieDb movie = tmdb.getMovieInfo(movieList.getResults().get(0).getId(), null, "casts,crew,genres,images,keywords,overview,releases,trailers,reviews,lists");
+
+                            //tmdb.getConfiguration().getPosterSizes()
+                            URL imgUrl = tmdb.createImageUrl(movie.getPosterPath(), tmdb.getConfiguration().getPosterSizes().get(1));
+                            posterImg = ImageIO.read(imgUrl);
+                            JOptionPane.showMessageDialog(this, imgUrl.toString());
+
+                            videoGroup1.addVideo(new Video(movie.getTitle(), movie.getCast().get(0).getName(),
+                                    movie.getGenres().get(0).getName(), movie.getReleases().get(0).getReleaseDate(),
+                                    movie.getTagline(), movie.getOverview(), f.getParent(), f.getName(), posterImg));
+                            //videoGroup1.addVideo(new Video(movie.getTitle(), "dir", "genre", "1900", "com", "des", "fp", "fn", posterImg));
+                        }
+                        else{
+                            taDescription.setText("getResults = 0");
+                        }                            
+                    }
+                    else {
+                        taDescription.setText("tmdb = null");
+                    }
+                }
+
+                AutoSizeColumns(tbData);
+                
+            } catch (Exception ex) {
+                taDescription.setText(ex.getMessage());
+            }
         }
     }//GEN-LAST:event_btnSelectFilesActionPerformed
 
