@@ -24,9 +24,11 @@
 package com.aoroberson;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 public class Video extends AbstractModelObject {
 
+    private Boolean m_editable;
     private String m_title;
     private String m_director;
     private String m_genre;
@@ -37,7 +39,8 @@ public class Video extends AbstractModelObject {
     private String m_filename;
     private BufferedImage m_posterImage;
 
-    public Video() {
+    public Video(String filepath) {
+        m_editable = true;
         m_title = "";
         m_title = "";
         m_director = "";
@@ -45,14 +48,14 @@ public class Video extends AbstractModelObject {
         m_year = "";
         m_comments = "";
         m_description = "";
-        m_filepath = "";
-        m_filename = "";
+        m_filepath = filepath;
+        m_filename = new File(filepath).getName();
         m_posterImage = null;
     }
 
     public Video(String title, String director, String genre, String year,
-            String comments, String description, String filepath,
-            String filename, BufferedImage posterImage) {
+            String comments, String description, String filepath, BufferedImage posterImage) {
+        m_editable = true;
         m_title = title;
         m_director = director;
         m_genre = genre;
@@ -60,10 +63,20 @@ public class Video extends AbstractModelObject {
         m_comments = comments;
         m_description = description;
         m_filepath = filepath;
-        m_filename = filename;
+        m_filename = new File(filepath).getName();
         m_posterImage = posterImage;
     }
+    
+    public Boolean getEditable() {
+        return m_editable;
+    }
 
+    public void setEditable(Boolean editable) {
+        Boolean oldValue = editable;
+        m_editable = editable;
+        firePropertyChange("editable", oldValue, m_editable);
+    }
+    
     public String getTitle() {
         return m_title;
     }

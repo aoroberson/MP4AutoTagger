@@ -83,7 +83,7 @@ public class MainForm extends javax.swing.JFrame {
     private void initComponents() {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        videoGroup1 = new com.aoroberson.VideoGroup();
+        videoGroup = new com.aoroberson.VideoGroup();
         cbTitle = new javax.swing.JCheckBox();
         cbDirector = new javax.swing.JCheckBox();
         cbGenre = new javax.swing.JCheckBox();
@@ -184,28 +184,18 @@ public class MainForm extends javax.swing.JFrame {
         jScrollPane2.setViewportView(taDescription);
 
         org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${videos}");
-        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, videoGroup1, eLProperty, tbData);
-        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${comments}"));
-        columnBinding.setColumnName("Comments");
+        org.jdesktop.swingbinding.JTableBinding jTableBinding = org.jdesktop.swingbinding.SwingBindings.createJTableBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, videoGroup, eLProperty, tbData);
+        org.jdesktop.swingbinding.JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${editable}"));
+        columnBinding.setColumnName("Editable");
+        columnBinding.setColumnClass(Boolean.class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${filepath}"));
+        columnBinding.setColumnName("Filepath");
         columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${description}"));
-        columnBinding.setColumnName("Description");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${director}"));
-        columnBinding.setColumnName("Director");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${genre}"));
-        columnBinding.setColumnName("Genre");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${title}"));
-        columnBinding.setColumnName("Title");
-        columnBinding.setColumnClass(String.class);
-        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${year}"));
-        columnBinding.setColumnName("Year");
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${filename}"));
+        columnBinding.setColumnName("Filename");
         columnBinding.setColumnClass(String.class);
         bindingGroup.addBinding(jTableBinding);
         jTableBinding.bind();
-
         jScrollPane3.setViewportView(tbData);
 
         btnApplyTags.setText("Apply Tag(s)");
@@ -354,45 +344,31 @@ public class MainForm extends javax.swing.JFrame {
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File[] selectedFiles = fileChooser.getSelectedFiles();
-
-            taDescription.setText("asdf;olaksjdf;lkjasdflkj");
             
-            try {
-                tmdb = new TheMovieDbApi("5a1a77e2eba8984804586122754f969f");
-                BufferedImage posterImg = null;
+//                tmdb = new TheMovieDbApi("5a1a77e2eba8984804586122754f969f");
+//                BufferedImage posterImg = null;
+//                    if (tmdb != null) {
+//                        TmdbResultsList<MovieDb> movieList = tmdb.searchMovie("Gone Girl", 2014, null, true, 0);
+//
+//                        if (movieList.getResults().size() > 0) {
+//                            MovieDb movie = tmdb.getMovieInfo(movieList.getResults().get(0).getId(), null, "casts,crew,genres,images,keywords,overview,releases,trailers,reviews,lists");
+//
+//                            //tmdb.getConfiguration().getPosterSizes()
+//                            URL imgUrl = tmdb.createImageUrl(movie.getPosterPath(), tmdb.getConfiguration().getPosterSizes().get(1));
+//                            posterImg = ImageIO.read(imgUrl);
+//
+//                            videoGroup1.addVideo(new Video(movie.getTitle(), movie.getCast().get(0).getName(),
+//                                    movie.getGenres().get(0).getName(), movie.getReleases().get(0).getReleaseDate(),
+//                                    movie.getTagline(), movie.getOverview(), f.getParent(), f.getName(), posterImg));
+//                            //videoGroup1.addVideo(new Video(movie.getTitle(), "dir", "genre", "1900", "com", "des", "fp", "fn", posterImg));
+//                        }                          
+//                    }
 
                 for (File f : selectedFiles) {
-
-                    if (tmdb != null) {
-                        TmdbResultsList<MovieDb> movieList = tmdb.searchMovie("Gone Girl", 2014, null, true, 0);
-
-                        if (movieList.getResults().size() > 0) {
-                            MovieDb movie = tmdb.getMovieInfo(movieList.getResults().get(0).getId(), null, "casts,crew,genres,images,keywords,overview,releases,trailers,reviews,lists");
-
-                            //tmdb.getConfiguration().getPosterSizes()
-                            URL imgUrl = tmdb.createImageUrl(movie.getPosterPath(), tmdb.getConfiguration().getPosterSizes().get(1));
-                            posterImg = ImageIO.read(imgUrl);
-                            JOptionPane.showMessageDialog(this, imgUrl.toString());
-
-                            videoGroup1.addVideo(new Video(movie.getTitle(), movie.getCast().get(0).getName(),
-                                    movie.getGenres().get(0).getName(), movie.getReleases().get(0).getReleaseDate(),
-                                    movie.getTagline(), movie.getOverview(), f.getParent(), f.getName(), posterImg));
-                            //videoGroup1.addVideo(new Video(movie.getTitle(), "dir", "genre", "1900", "com", "des", "fp", "fn", posterImg));
-                        }
-                        else{
-                            taDescription.setText("getResults = 0");
-                        }                            
-                    }
-                    else {
-                        taDescription.setText("tmdb = null");
-                    }
+                    videoGroup.addVideo(new Video(f.getPath()));
                 }
 
                 AutoSizeColumns(tbData);
-                
-            } catch (Exception ex) {
-                taDescription.setText(ex.getMessage());
-            }
         }
     }//GEN-LAST:event_btnSelectFilesActionPerformed
 
@@ -483,7 +459,7 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JTextField tfGenre;
     private javax.swing.JTextField tfTitle;
     private javax.swing.JTextField tfYear;
-    private com.aoroberson.VideoGroup videoGroup1;
+    private com.aoroberson.VideoGroup videoGroup;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

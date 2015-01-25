@@ -2,7 +2,7 @@
 
 <Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
-    <Component class="com.aoroberson.VideoGroup" name="videoGroup1">
+    <Component class="com.aoroberson.VideoGroup" name="videoGroup">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -276,24 +276,42 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
         <Component class="javax.swing.JTable" name="tbData">
+          <Properties>
+            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+              <TableColumnModel selectionModel="0">
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                  <Title/>
+                  <Editor/>
+                  <Renderer/>
+                </Column>
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                  <Title/>
+                  <Editor/>
+                  <Renderer/>
+                </Column>
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                  <Title/>
+                  <Editor/>
+                  <Renderer/>
+                </Column>
+              </TableColumnModel>
+            </Property>
+            <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+              <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+            </Property>
+          </Properties>
           <BindingProperties>
-            <BindingProperty name="elements" source="videoGroup1" sourcePath="${videos}" target="tbData" targetPath="elements" updateStrategy="0" immediately="true">
-              <Subbinding sourcePath="${comments}">
+            <BindingProperty name="elements" source="videoGroup" sourcePath="${videos}" target="tbData" targetPath="elements" updateStrategy="0" immediately="true">
+              <Subbinding sourcePath="${editable}">
+                <BindingParameter name="NAME" value="Editable"/>
+                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="Boolean.class"/>
+              </Subbinding>
+              <Subbinding sourcePath="${filepath}">
+                <BindingParameter name="NAME" value="Filepath"/>
                 <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
               </Subbinding>
-              <Subbinding sourcePath="${description}">
-                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
-              </Subbinding>
-              <Subbinding sourcePath="${director}">
-                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
-              </Subbinding>
-              <Subbinding sourcePath="${genre}">
-                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
-              </Subbinding>
-              <Subbinding sourcePath="${title}">
-                <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
-              </Subbinding>
-              <Subbinding sourcePath="${year}">
+              <Subbinding sourcePath="${filename}">
+                <BindingParameter name="NAME" value="Filename"/>
                 <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
               </Subbinding>
             </BindingProperty>
