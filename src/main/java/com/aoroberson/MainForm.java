@@ -32,8 +32,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -201,6 +204,11 @@ public class MainForm extends javax.swing.JFrame {
         btnApplyTags.setText("Apply Tag(s)");
 
         btnAutoTag.setText("Auto Tag");
+        btnAutoTag.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAutoTagActionPerformed(evt);
+            }
+        });
 
         btnSelectFiles.setText("Select File(s)");
         btnSelectFiles.addActionListener(new java.awt.event.ActionListener() {
@@ -344,31 +352,33 @@ public class MainForm extends javax.swing.JFrame {
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File[] selectedFiles = fileChooser.getSelectedFiles();
-            
-//                tmdb = new TheMovieDbApi("5a1a77e2eba8984804586122754f969f");
-//                BufferedImage posterImg = null;
-//                    if (tmdb != null) {
-//                        TmdbResultsList<MovieDb> movieList = tmdb.searchMovie("Gone Girl", 2014, null, true, 0);
-//
-//                        if (movieList.getResults().size() > 0) {
-//                            MovieDb movie = tmdb.getMovieInfo(movieList.getResults().get(0).getId(), null, "casts,crew,genres,images,keywords,overview,releases,trailers,reviews,lists");
-//
-//                            //tmdb.getConfiguration().getPosterSizes()
-//                            URL imgUrl = tmdb.createImageUrl(movie.getPosterPath(), tmdb.getConfiguration().getPosterSizes().get(1));
-//                            posterImg = ImageIO.read(imgUrl);
-//
-//                            videoGroup1.addVideo(new Video(movie.getTitle(), movie.getCast().get(0).getName(),
-//                                    movie.getGenres().get(0).getName(), movie.getReleases().get(0).getReleaseDate(),
-//                                    movie.getTagline(), movie.getOverview(), f.getParent(), f.getName(), posterImg));
-//                            //videoGroup1.addVideo(new Video(movie.getTitle(), "dir", "genre", "1900", "com", "des", "fp", "fn", posterImg));
-//                        }                          
-//                    }
 
-                for (File f : selectedFiles) {
-                    videoGroup.addVideo(new Video(f.getPath()));
+            for (File f : selectedFiles) {
+                Video v = new Video(f.getPath());
+
+                String foundTitle = v.getFilename().replaceFirst("[.][^.]+$", ""); // Remove extension
+                String foundYear = "";
+                Pattern pattern = Pattern.compile("\\d{4}");
+                Matcher matcher = pattern.matcher(v.getFilename());
+
+                // Find the year in range
+                while (matcher.find()) {
+                    foundYear = v.getFilename().substring(matcher.start(), matcher.end());
+                    if (Integer.parseInt(foundYear) >= 1900 && Integer.parseInt(foundYear) < 2100) {
+                        v.setYear(foundYear);
+                        foundTitle = v.getFilename().substring(0, matcher.start());
+                    }
                 }
 
-                AutoSizeColumns(tbData);
+                // Find and clean the title
+                foundTitle = foundTitle.replaceAll("[^A-Za-z0-9,']", " "); // Replace non-alphanumeric chars except , and '
+                foundTitle = foundTitle.replaceAll("\\s+", " "); // Replace multiple space chars
+                v.setTitle(foundTitle);
+
+                videoGroup.addVideo(v);
+            }
+
+            AutoSizeColumns(tbData);
         }
     }//GEN-LAST:event_btnSelectFilesActionPerformed
 
@@ -397,6 +407,48 @@ public class MainForm extends javax.swing.JFrame {
         taDescription.setEditable(cbDescription.isSelected());
         taDescription.setBackground(cbDescription.isSelected() ? new JTextField().getBackground() : UIManager.getColor("TextField.inactiveBackground"));
     }//GEN-LAST:event_cbDescriptionActionPerformed
+
+    public static Integer tryParse(String text) {
+        try {
+            return new Integer(text);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private void btnAutoTagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutoTagActionPerformed
+        try {
+            tmdb = new TheMovieDbApi("5a1a77e2eba8984804586122754f969f");
+            BufferedImage posterImg = null;
+            if (tmdb != null) {
+                for (Iterator<Video> v = videoGroup.getVideos().iterator(); v.hasNext();) {
+                    Video video = v.next();
+                    TmdbResultsList<MovieDb> movieList = tmdb.searchMovie(video.getTitle(), tryParse(video.getYear()), null, true, 0);
+
+                    if (movieList.getResults().size() > 0) {
+                        MovieDb movie = tmdb.getMovieInfo(movieList.getResults().get(0).getId(), null, "casts,crew,genres,images,keywords,overview,releases,trailers,reviews,lists");
+
+                        //tmdb.getConfiguration().getPosterSizes()
+                        URL imgUrl = tmdb.createImageUrl(movie.getPosterPath(), tmdb.getConfiguration().getPosterSizes().get(1));
+                        posterImg = ImageIO.read(imgUrl);
+
+                        video.setTitle(movie.getTitle());
+                        video.setDirector(movie.getCast().get(0).getName());
+                        video.setGenre(movie.getGenres().get(0).getName());
+                        video.setYear(movie.getReleases().get(0).getReleaseDate().substring(0, 4));
+                        video.setComments(movie.getTagline());
+                        video.setDescription(movie.getOverview());
+                        video.setPosterImage(posterImg);
+                        //videoGroup1.addVideo(new Video(movie.getTitle(), "dir", "genre", "1900", "com", "des", "fp", "fn", posterImg));
+                    }
+                }
+            }
+        } catch (MovieDbException ex) {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnAutoTagActionPerformed
 
     /**
      * @param args the command line arguments
