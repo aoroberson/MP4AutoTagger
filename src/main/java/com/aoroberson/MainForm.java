@@ -29,8 +29,11 @@ import com.omertron.themoviedbapi.model.MovieDb;
 import com.omertron.themoviedbapi.results.TmdbResultsList;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -108,6 +111,7 @@ public class MainForm extends javax.swing.JFrame {
         tfGenre = new javax.swing.JTextField();
         tfYear = new javax.swing.JTextField();
         imagePane1 = new com.aoroberson.ImagePane();
+        btnClear = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(580, 520));
@@ -202,6 +206,11 @@ public class MainForm extends javax.swing.JFrame {
         jScrollPane3.setViewportView(tbData);
 
         btnApplyTags.setText("Apply Tag(s)");
+        btnApplyTags.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnApplyTagsActionPerformed(evt);
+            }
+        });
 
         btnAutoTag.setText("Auto Tag");
         btnAutoTag.addActionListener(new java.awt.event.ActionListener() {
@@ -245,6 +254,13 @@ public class MainForm extends javax.swing.JFrame {
             .addGap(0, 225, Short.MAX_VALUE)
         );
 
+        btnClear.setText("Clear");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -254,6 +270,8 @@ public class MainForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnSelectFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnAutoTag, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -336,7 +354,9 @@ public class MainForm extends javax.swing.JFrame {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(btnApplyTags, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(btnAutoTag, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(btnSelectFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnSelectFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -419,10 +439,8 @@ public class MainForm extends javax.swing.JFrame {
     private void btnAutoTagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutoTagActionPerformed
         try {
             tmdb = new TheMovieDbApi("5a1a77e2eba8984804586122754f969f");
-            BufferedImage posterImg = null;
             if (tmdb != null) {
-                for (Iterator<Video> v = videoGroup.getVideos().iterator(); v.hasNext();) {
-                    Video video = v.next();
+                for (Video video : videoGroup.getVideos()) {
                     TmdbResultsList<MovieDb> movieList = tmdb.searchMovie(video.getTitle(), tryParse(video.getYear()), null, true, 0);
 
                     if (movieList.getResults().size() > 0) {
@@ -430,7 +448,7 @@ public class MainForm extends javax.swing.JFrame {
 
                         //tmdb.getConfiguration().getPosterSizes()
                         URL imgUrl = tmdb.createImageUrl(movie.getPosterPath(), tmdb.getConfiguration().getPosterSizes().get(1));
-                        posterImg = ImageIO.read(imgUrl);
+                        BufferedImage posterImg = ImageIO.read(imgUrl);
 
                         video.setTitle(movie.getTitle());
                         video.setDirector(movie.getCast().get(0).getName());
@@ -439,16 +457,47 @@ public class MainForm extends javax.swing.JFrame {
                         video.setComments(movie.getTagline());
                         video.setDescription(movie.getOverview());
                         video.setPosterImage(posterImg);
-                        //videoGroup1.addVideo(new Video(movie.getTitle(), "dir", "genre", "1900", "com", "des", "fp", "fn", posterImg));
                     }
                 }
             }
-        } catch (MovieDbException ex) {
-            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        } catch (MovieDbException | IOException ex) {
             Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnAutoTagActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        videoGroup.clear();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnApplyTagsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApplyTagsActionPerformed
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("C:/MP4Box/mp4box", "-iTags", "name=The Big Bang Theory S07E02:created=2013:genre=Comedy:cover=C:\\MP4Box\\download.jpg", "C:\\MP4Box\\The.Big.Bang.Theory.S07E01.HDTV.x264-LOL.mp4");
+            processBuilder.directory(new File("C:/MP4Box/"));
+            File log = new File("C:/MP4Box/log.txt");
+            processBuilder.redirectErrorStream(true);
+            Process p = processBuilder.start();
+            BufferedReader output = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            PrintWriter logFile = new PrintWriter(log);
+            String line = null;
+
+            logFile.println("Start");
+
+            while ((line = output.readLine()) != null) {
+                System.out.println("Test " + line);
+                logFile.println("Test " + line);
+            }
+
+            p.waitFor();
+
+            System.out.println("Finished");
+            logFile.println("Finished");
+            output.close();
+            logFile.close();
+
+        } catch (IOException | InterruptedException ex) {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnApplyTagsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -492,6 +541,7 @@ public class MainForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApplyTags;
     private javax.swing.JButton btnAutoTag;
+    private javax.swing.JButton btnClear;
     private javax.swing.JButton btnSelectFiles;
     private javax.swing.JCheckBox cbComments;
     private javax.swing.JCheckBox cbDescription;

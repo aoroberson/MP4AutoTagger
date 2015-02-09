@@ -28,13 +28,15 @@ import java.util.List;
 
 public class VideoGroup extends AbstractModelObject {
 
-    private List<Video> m_videos = new ArrayList<Video>();
+    private ArrayList<Video> m_videos;
     private String m_name;
 
     public VideoGroup() {
+        m_videos = new ArrayList<>();
     }
 
     public VideoGroup(String name) {
+        m_videos = new ArrayList<>();
         m_name = name;
     }
 
@@ -48,18 +50,26 @@ public class VideoGroup extends AbstractModelObject {
         firePropertyChange("name", oldValue, m_name);
     }
 
-    public void addVideo(Video videos) {
+    public void addVideo(Video video) {
         List<Video> oldValue = m_videos;
-        m_videos = new ArrayList<Video>(m_videos);
-        m_videos.add(videos);
+        m_videos = new ArrayList<>(m_videos);
+        m_videos.add(video);
         firePropertyChange("videos", oldValue, m_videos);
         firePropertyChange("videoCount", oldValue.size(), m_videos.size());
     }
 
-    public void removeVideo(Video videos) {
+    public void removeVideo(Video video) {
         List<Video> oldValue = m_videos;
-        m_videos = new ArrayList<Video>(m_videos);
-        m_videos.remove(videos);
+        m_videos = new ArrayList<>(m_videos);
+        m_videos.remove(video);
+        firePropertyChange("videos", oldValue, m_videos);
+        firePropertyChange("videoCount", oldValue.size(), m_videos.size());
+    }
+    
+    public void clear() {
+        List<Video> oldValue = m_videos;
+        m_videos = new ArrayList<>(m_videos);
+        m_videos.clear();
         firePropertyChange("videos", oldValue, m_videos);
         firePropertyChange("videoCount", oldValue.size(), m_videos.size());
     }

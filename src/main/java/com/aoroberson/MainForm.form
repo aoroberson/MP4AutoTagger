@@ -35,6 +35,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="btnSelectFiles" min="-2" pref="116" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btnClear" min="-2" pref="116" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="btnAutoTag" min="-2" pref="116" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -143,7 +145,10 @@
                       <Component id="btnApplyTags" alignment="3" min="-2" pref="38" max="-2" attributes="0"/>
                       <Component id="btnAutoTag" alignment="3" min="-2" pref="38" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="btnSelectFiles" alignment="0" min="-2" pref="42" max="-2" attributes="0"/>
+                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                      <Component id="btnSelectFiles" alignment="3" min="-2" pref="42" max="-2" attributes="0"/>
+                      <Component id="btnClear" alignment="3" min="-2" pref="42" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -303,15 +308,12 @@
           <BindingProperties>
             <BindingProperty name="elements" source="videoGroup" sourcePath="${videos}" target="tbData" targetPath="elements" updateStrategy="0" immediately="true">
               <Subbinding sourcePath="${editable}">
-                <BindingParameter name="NAME" value="Editable"/>
                 <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="Boolean.class"/>
               </Subbinding>
               <Subbinding sourcePath="${filepath}">
-                <BindingParameter name="NAME" value="Filepath"/>
                 <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
               </Subbinding>
               <Subbinding sourcePath="${filename}">
-                <BindingParameter name="NAME" value="Filename"/>
                 <BindingParameter name="javax.swing.binding.ParameterKeys.COLUMN_CLASS" value="String.class"/>
               </Subbinding>
             </BindingProperty>
@@ -323,6 +325,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Apply Tag(s)"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnApplyTagsActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnAutoTag">
       <Properties>
@@ -389,5 +394,13 @@
         </DimensionLayout>
       </Layout>
     </Container>
+    <Component class="javax.swing.JButton" name="btnClear">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Clear"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnClearActionPerformed"/>
+      </Events>
+    </Component>
   </SubComponents>
 </Form>
